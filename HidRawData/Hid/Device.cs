@@ -101,6 +101,16 @@ namespace Djlastnight.Hid
 
         public int ButtonCount { get; private set; }
 
+        public bool IsStylus
+        {
+            get
+            {
+                return (UsagePage)this.capabilities.UsagePage == Hid.UsagePage.Digitiser && (
+                    (UsageCollection.Digitizer)this.capabilities.Usage == Digitizer.Digitizer ||
+                    (UsageCollection.Digitizer)this.capabilities.Usage == Digitizer.Pen);
+            }
+        }
+
         public bool IsGamePad
         {
             get
