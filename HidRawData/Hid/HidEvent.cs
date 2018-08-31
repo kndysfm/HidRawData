@@ -34,7 +34,7 @@ namespace Djlastnight.Hid
 
             this.Time = DateTime.Now;
             this.OriginalTime = DateTime.Now;
-            this.Usages = new List<ushort>();
+            this.Usages = new List<Tuple<ushort,ushort>>();
             this.UsageValues = new Dictionary<HIDP_VALUE_CAPS, uint>();
 
             if (message.Msg != Contants.WM_INPUT)
@@ -287,14 +287,22 @@ namespace Djlastnight.Hid
                 if (this.IsGeneric)
                 {
                     // For generic HID device check that our first usage is not zero
-                    return this.Usages.Count == 1 && this.Usages[0] != 0;
+                    return this.Usages.Count > 0;
                 }
                 else if (this.IsKeyboard)
                 {
                     return !this.IsButtonUp;
                 }
+                else if (this.IsMouse)
+                {
+                    //Debug.Assert(false, "TODO: mouse handling");
+                    return (this.RawInput.mouse.buttonsStr.usButtonFlags.HasFlag(RawInputMouseButtonFlags.RI_MOUSE_BUTTON_1_DOWN) ||
+                        this.RawInput.mouse.buttonsStr.usButtonFlags.HasFlag(RawInputMouseButtonFlags.RI_MOUSE_BUTTON_2_DOWN) ||
+                        this.RawInput.mouse.buttonsStr.usButtonFlags.HasFlag(RawInputMouseButtonFlags.RI_MOUSE_BUTTON_3_DOWN) ||
+                        this.RawInput.mouse.buttonsStr.usButtonFlags.HasFlag(RawInputMouseButtonFlags.RI_MOUSE_BUTTON_4_DOWN) ||
+                        this.RawInput.mouse.buttonsStr.usButtonFlags.HasFlag(RawInputMouseButtonFlags.RI_MOUSE_BUTTON_5_DOWN));
+                }
 
-                Debug.Assert(false, "TODO: mouse handling");
                 return false;
             }
         }
@@ -316,8 +324,16 @@ namespace Djlastnight.Hid
                     // This is a key up event if our break flag is set
                     return this.RawInput.keyboard.Flags.HasFlag(RawInputKeyFlags.RI_KEY_BREAK);
                 }
+                else if (this.IsMouse)
+                {
+                    //Debug.Assert(false, "TODO: mouse handling");
+                    return (this.RawInput.mouse.buttonsStr.usButtonFlags.HasFlag(RawInputMouseButtonFlags.RI_MOUSE_BUTTON_1_UP) ||
+                        this.RawInput.mouse.buttonsStr.usButtonFlags.HasFlag(RawInputMouseButtonFlags.RI_MOUSE_BUTTON_2_UP) ||
+                        this.RawInput.mouse.buttonsStr.usButtonFlags.HasFlag(RawInputMouseButtonFlags.RI_MOUSE_BUTTON_3_UP) ||
+                        this.RawInput.mouse.buttonsStr.usButtonFlags.HasFlag(RawInputMouseButtonFlags.RI_MOUSE_BUTTON_4_UP) ||
+                        this.RawInput.mouse.buttonsStr.usButtonFlags.HasFlag(RawInputMouseButtonFlags.RI_MOUSE_BUTTON_5_UP)) ;
+                }
 
-                Debug.Assert(false, "TODO: mouse handling");
                 return false;
             }
         }
@@ -375,7 +391,7 @@ namespace Djlastnight.Hid
         /// </summary>
         public ushort UsageCollection { get; private set; }
 
-        public List<ushort> Usages { get; private set; }
+        public List<Tuple<ushort,ushort>> Usages { get; private set; }
 
         public uint UsageId
         {
@@ -388,7 +404,7 @@ namespace Djlastnight.Hid
         /// <summary>
         /// Sorted in the same order as Device.InputValueCapabilities.
         /// </summary>
-        public Dictionary<HIDP_VALUE_CAPS, uint> UsageValues { get; private set; }
+        public Dictionary<HIDP_VALUE_CAPS, uint> UsageValues { get; private set; } 
 
         public byte[] InputReport { get; private set; }
 
@@ -503,7 +519,7 @@ namespace Djlastnight.Hid
         internal string UsageName(int index)
         {
             Type usageType = Utils.UsageType(this.UsagePageEnum);
-            return Enum.GetName(usageType, this.Usages[index]);
+            return Enum.GetName(usageType, this.Usages[index].Item2);
         }
 
         /// <summary>
@@ -513,7 +529,7 @@ namespace Djlastnight.Hid
         /// <returns></returns>
         internal string UsageNameAndValue(int index)
         {
-            return string.Format("{0} (0x{1})", this.UsageName(index), this.Usages[index].ToString("X4"));
+            return string.Format("{0} ({1:X4}_{2:X4})", this.UsageName(index), this.Usages[index].Item1, this.Usages[index].Item2);
         }
 
         /// <summary>
@@ -684,7 +700,7 @@ namespace Djlastnight.Hid
             {
                 foreach (USAGE_AND_PAGE up in usages)
                 {
-                    this.Usages.Add(up.Usage);
+                    this.Usages.Add(new Tuple<ushort,ushort>(up.UsagePage,up.Usage));
                 }
             }
         }

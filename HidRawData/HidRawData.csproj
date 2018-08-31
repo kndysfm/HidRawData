@@ -48,6 +48,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Hid\UsageCollection\Digitizer.cs" />
+    <Compile Include="Hid\Usage\Digitizer.cs" />
     <Compile Include="Input\DeviceScanner.cs" />
     <Compile Include="Input\DeviceType.cs" />
     <Compile Include="Input\HidKeyboard.cs" />

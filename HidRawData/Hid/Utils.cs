@@ -24,6 +24,9 @@
                 case UsagePage.WindowsMediaCenterRemoteControl:
                     return typeof(UsageCollection.WindowsMediaCenter);
 
+                case UsagePage.Digitiser:
+                    return typeof(UsageCollection.Digitizer);
+
                 default:
                     return null;
             }
@@ -58,6 +61,9 @@
 
                 case UsagePage.GenericDeviceControls:
                     return typeof(Usage.GenericDevice);
+
+                case UsagePage.Digitiser:
+                    return typeof(Usage.Digitizer);
 
                 default:
                     return null;
