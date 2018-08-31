@@ -34,7 +34,7 @@ namespace Djlastnight.Hid
 
             this.Time = DateTime.Now;
             this.OriginalTime = DateTime.Now;
-            this.Usages = new List<Tuple<ushort,ushort>>();
+            this.Buttons = new Dictionary<HIDP_BUTTON_CAPS, bool>();
             this.UsageValues = new Dictionary<HIDP_VALUE_CAPS, uint>();
 
             if (message.Msg != Contants.WM_INPUT)
@@ -287,7 +287,7 @@ namespace Djlastnight.Hid
                 if (this.IsGeneric)
                 {
                     // For generic HID device check that our first usage is not zero
-                    return this.Usages.Count > 0;
+                    return this.Buttons.Count > 0;
                 }
                 else if (this.IsKeyboard)
                 {
@@ -317,7 +317,7 @@ namespace Djlastnight.Hid
                 if (this.IsGeneric)
                 {
                     // Button up event if we do not have any usages
-                    return this.Usages.Count == 0;
+                    return this.Buttons.Count == 0;
                 }
                 else if (this.IsKeyboard)
                 {
@@ -391,7 +391,7 @@ namespace Djlastnight.Hid
         /// </summary>
         public ushort UsageCollection { get; private set; }
 
-        public List<Tuple<ushort,ushort>> Usages { get; private set; }
+        public Dictionary<HIDP_BUTTON_CAPS, bool> Buttons { get; private set; }
 
         public uint UsageId
         {
@@ -446,7 +446,7 @@ namespace Djlastnight.Hid
             if (this.IsGeneric)
             {
                 result += ", Generic";
-                for (int i = 0; i < this.Usages.Count; i++)
+                for (int i = 0; i < this.Buttons.Count; i++)
                 {
                     result += ", Usage: " + this.UsageNameAndValue(i);
                 }
@@ -516,10 +516,10 @@ namespace Djlastnight.Hid
         /// </summary>
         /// <param name="index">Index of the usage concerned.</param>
         /// <returns></returns>
-        internal string UsageName(int index)
+        internal string UsageName(HIDP_BUTTON_CAPS bc)
         {
             Type usageType = Utils.UsageType(this.UsagePageEnum);
-            return Enum.GetName(usageType, this.Usages[index].Item2);
+            return Enum.GetName(usageType, bc.NotRange.Usage);
         }
 
         /// <summary>
@@ -529,7 +529,8 @@ namespace Djlastnight.Hid
         /// <returns></returns>
         internal string UsageNameAndValue(int index)
         {
-            return string.Format("{0} ({1:X4}_{2:X4})", this.UsageName(index), this.Usages[index].Item1, this.Usages[index].Item2);
+            var bc = this.Device.InputButtonCapabilities[index];
+            return string.Format("{0} ({1:X4}_{2:X4}) {3}", this.UsageName(bc), bc.UsagePage, bc.NotRange.Usage, this.Buttons[bc]? "ON":"OFF");
         }
 
         /// <summary>
@@ -698,9 +699,18 @@ namespace Djlastnight.Hid
             // Copy usages into this event
             if (usages != null)
             {
-                foreach (USAGE_AND_PAGE up in usages)
+                foreach (var bc in this.Device.InputButtonCapabilities)
                 {
-                    this.Usages.Add(new Tuple<ushort,ushort>(up.UsagePage,up.Usage));
+                    var b = false;
+                    foreach (USAGE_AND_PAGE up in usages)
+                    {
+                        if (up.UsagePage == bc.UsagePage && up.Usage == bc.NotRange.Usage)
+                        {
+                            b = true;
+                            break;
+                        }
+                    }
+                    this.Buttons[bc] = b;
                 }
             }
         }
