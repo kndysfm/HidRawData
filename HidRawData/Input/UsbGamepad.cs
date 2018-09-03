@@ -4,7 +4,7 @@
     using System.Linq;
     using Microsoft.Win32;
 
-    public class UsbGamepad : IinputDevice
+    public class UsbGamepad : IInputDevice
     {
         internal UsbGamepad(string deviceId, string description)
         {

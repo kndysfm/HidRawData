@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class HidOtherDevice : IinputDevice
+    public class HidOtherDevice : IInputDevice
     {
         internal HidOtherDevice(string deviceId, string description, string friendlyName)
         {

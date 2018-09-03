@@ -1,6 +1,6 @@
 ﻿namespace Djlastnight.Input
 {
-    public class VirtualKeyboard : IinputDevice
+    public class VirtualKeyboard : IInputDevice
     {
         static VirtualKeyboard()
         {

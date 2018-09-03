@@ -1,6 +1,6 @@
 ﻿namespace Djlastnight.Input
 {
-    public interface IinputDevice
+    public interface IInputDevice
     {
         string DeviceID { get; }
 

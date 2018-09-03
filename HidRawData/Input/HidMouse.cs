@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class HidMouse : IinputDevice
+    public class HidMouse : IInputDevice
     {
         internal HidMouse(string deviceId, string description)
         {
