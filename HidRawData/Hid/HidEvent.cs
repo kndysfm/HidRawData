@@ -713,6 +713,13 @@ namespace Djlastnight.Hid
                     this.Buttons[bc] = b;
                 }
             }
+            else
+            {
+                foreach (var bc in this.Device.InputButtonCapabilities)
+                {
+                    this.Buttons[bc] = false;
+                }
+            }
         }
     }
 }

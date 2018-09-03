@@ -111,6 +111,16 @@ namespace Djlastnight.Hid
             }
         }
 
+        public bool IsFinger
+        {
+            get
+            {
+                return (UsagePage)this.capabilities.UsagePage == Hid.UsagePage.Digitiser && (
+                    (UsageCollection.Digitizer)this.capabilities.Usage == Digitizer.TouchScreen ||
+                    (UsageCollection.Digitizer)this.capabilities.Usage == Digitizer.TouchPad);
+            }
+        }
+
         public bool IsGamePad
         {
             get

@@ -21,6 +21,28 @@ namespace Djlastnight.Hid
             return Enum.GetName(pageType, caps.NotRange.Usage) + $"({pageType.Name})";
         }
 
+        public static bool HasLink(this HIDP_BUTTON_CAPS caps) => caps.LinkUsage != 0;
+
+        public static int GetLinkIndex(this HIDP_BUTTON_CAPS caps) => caps.LinkCollection;
+
+        public static string GetLinkName(this HIDP_BUTTON_CAPS caps)
+        {
+            if (!caps.HasLink()) return "";
+            var pageType = Utils.UsageType((UsagePage)caps.LinkUsagePage);
+            return Enum.GetName(pageType, caps.LinkUsage) + $"({pageType.Name})[{caps.LinkCollection}]";
+        }
+
+        public static bool HasLink(this HIDP_VALUE_CAPS caps) => caps.LinkUsage != 0;
+
+        public static int GetLinkIndex(this HIDP_VALUE_CAPS caps) => caps.LinkCollection;
+
+        public static string GetLinkName(this HIDP_VALUE_CAPS caps)
+        {
+            if (!caps.HasLink()) return "";
+            var pageType = Utils.UsageType((UsagePage)caps.LinkUsagePage);
+            return Enum.GetName(pageType, caps.LinkUsage) + $"({pageType.Name})[{caps.LinkCollection}]";
+        }
+
         private static int getUnitExp(uint value)
         {
             Debug.Assert(value < 16);
@@ -120,6 +142,8 @@ namespace Djlastnight.Hid
             }
             return new Tuple<float, string>((float)Math.Pow(10, e), s);
         }
+
+        public static bool HasUnit(this HIDP_VALUE_CAPS caps) => caps.Units != 0;
 
         public static string GetUnit(this HIDP_VALUE_CAPS caps)
         {

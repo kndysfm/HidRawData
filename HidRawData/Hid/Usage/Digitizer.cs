@@ -5,6 +5,13 @@ using System.Text;
 
 namespace Djlastnight.Hid.Usage
 {
+    /// <summary>
+    /// Usages in Digitizer Usage Page (0x0D)
+    /// http://www.usb.org/developers/hidpage/Hut1_12v2.pdf
+    /// Reference: HLK requirement by microsoft 
+    ///      Pen:   https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/required-hid-top-level-collections
+    ///      Touch: https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/touchscreen-required-hid-top-level-collections
+    /// </summary>
     public enum Digitizer : ushort
     {
         Null = 0x00,
@@ -50,7 +57,12 @@ namespace Djlastnight.Hid.Usage
         Eraser = 0x45,
         TabletPick = 0x46,
         Confidence = 0x47,
+        Width = 0x48,
+        Height = 0x49,
         //
+        ContactID = 0x51,
+        ContactCount = 0x54,
+        ScanTime = 0x56,
         SecondaryBarrelSwitch = 0x5A,
         StylusSerial = 0x5B,
     }
