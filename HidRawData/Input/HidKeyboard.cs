@@ -2,7 +2,7 @@
 {
     using System;
 
-    public class HidKeyboard : IIinputDevice
+    public class HidKeyboard : IinputDevice
     {
         internal HidKeyboard(string deviceId, string description)
         {

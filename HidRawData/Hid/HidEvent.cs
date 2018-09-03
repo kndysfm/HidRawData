@@ -448,7 +448,7 @@ namespace Djlastnight.Hid
                 result += ", Generic";
                 for (int i = 0; i < this.Buttons.Count; i++)
                 {
-                    result += ", Usage: " + this.UsageNameAndValue(i);
+                    result += ", Usage: " + this.GetButtonNameAndValue(i);
                 }
 
                 result += ", UsagePage: " + this.UsagePageNameAndValue();
@@ -516,7 +516,7 @@ namespace Djlastnight.Hid
         /// </summary>
         /// <param name="index">Index of the usage concerned.</param>
         /// <returns></returns>
-        internal string UsageName(HIDP_BUTTON_CAPS bc)
+        internal string GetButtonName(HIDP_BUTTON_CAPS bc)
         {
             Type usageType = Utils.UsageType(this.UsagePageEnum);
             return Enum.GetName(usageType, bc.NotRange.Usage);
@@ -527,10 +527,10 @@ namespace Djlastnight.Hid
         /// </summary>
         /// <param name="index">Index of the usage concerned.</param>
         /// <returns></returns>
-        internal string UsageNameAndValue(int index)
+        internal string GetButtonNameAndValue(int index)
         {
             var bc = this.Device.InputButtonCapabilities[index];
-            return string.Format("{0} ({1:X4}_{2:X4}) {3}", this.UsageName(bc), bc.UsagePage, bc.NotRange.Usage, this.Buttons[bc]? "ON":"OFF");
+            return string.Format("{0} ({1:X4}_{2:X4}) {3}", this.GetButtonName(bc), bc.UsagePage, bc.NotRange.Usage, this.Buttons[bc]? "ON":"OFF");
         }
 
         /// <summary>

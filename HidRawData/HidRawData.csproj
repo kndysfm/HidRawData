@@ -55,7 +55,7 @@
     <Compile Include="Input\HidKeyboard.cs" />
     <Compile Include="Input\HidMouse.cs" />
     <Compile Include="Input\HidOtherDevice.cs" />
-    <Compile Include="Input\IIinputDevice.cs" />
+    <Compile Include="Input\IinputDevice.cs" />
     <Compile Include="Input\Internal\ExtensionMethods.cs" />
     <Compile Include="Input\Internal\Win32_PnPEntity.cs" />
     <Compile Include="Input\Internal\WinMM\JoyCaps.cs">
