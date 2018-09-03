@@ -159,7 +159,7 @@ namespace Djlastnight.Hid
         /// Populate the given tree-view control with our Raw Input Devices.
         /// </summary>
         /// <param name="treeView"></param>
-        public static void PopulateDeviceList(TreeView treeView)
+        public static void __PopulateDeviceList(TreeView treeView)
         {
             // Get our list of devices
             RAWINPUTDEVICELIST[] ridList = null;
@@ -245,21 +245,42 @@ namespace Djlastnight.Hid
             }
         }
 
-        public static List<Device> GetDevices()
+        public static IList<Device> GetDevices()
         {
-            var treeview = new System.Windows.Forms.TreeView();
-            RawInputHelper.PopulateDeviceList(treeview);
-            var devices = new Dictionary<uint, Device>();
-            foreach (System.Windows.Forms.TreeNode node in treeview.Nodes)
+            // Get our list of devices
+            RAWINPUTDEVICELIST[] ridList = null;
+            uint deviceCount = 0;
+            int res = Win32.Win32RawInput.NativeMethods.GetRawInputDeviceList(ridList, ref deviceCount, (uint)Marshal.SizeOf(typeof(RAWINPUTDEVICELIST)));
+            if (res == -1)
             {
-                var dev = (Device)node.Tag;
-                if (!devices.ContainsKey(dev.UsageId))
+                // Just give up then
+                return null;
+            }
+
+            ridList = new RAWINPUTDEVICELIST[deviceCount];
+            res = Win32.Win32RawInput.NativeMethods.GetRawInputDeviceList(ridList, ref deviceCount, (uint)Marshal.SizeOf(typeof(RAWINPUTDEVICELIST)));
+            if (res != deviceCount)
+            {
+                // Just give up then
+                return null;
+            }
+
+            var devs = new List<Device>();
+            // For each our device add a node to our treeview
+            foreach (RAWINPUTDEVICELIST device in ridList)
+            {
+                // Try create our HID device.
+                try
                 {
-                    devices.Add(dev.UsageId, dev);
+                    devs.Add(new Device(device.hDevice));
+                }
+                catch
+                {
+                    continue;
                 }
             }
 
-            return devices.Values.ToList();
+            return devs;
         }
     }
 }

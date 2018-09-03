@@ -56,7 +56,7 @@
         /// </summary>
         public event HidEventHandler HidDataReceived;
 
-        public static List<Device> GetDevices()
+        public static IList<Device> GetDevices()
         {
             var devices = RawInputHelper.GetDevices();
             return devices;
@@ -79,6 +79,8 @@
             }
         }
 
+        public Device Device { get; set; }
+
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wordParam, IntPtr longParam, ref bool handled)
         {
             if (this.window == null || msg != Djlastnight.Win32.Contants.WM_INPUT)
@@ -91,7 +93,7 @@
             message.Msg = msg;
             message.WParam = wordParam;
             message.LParam = longParam;
-            this.handler.ProcessInput(ref message);
+            this.handler.ProcessInput(ref message, Device);
 
             return IntPtr.Zero;
         }

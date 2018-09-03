@@ -50,27 +50,8 @@
   <ItemGroup>
     <Compile Include="Hid\HidCapsUtils.cs" />
     <Compile Include="Hid\UsageCollection\Digitizer.cs" />
+    <Compile Include="Hid\UsageUtils.cs" />
     <Compile Include="Hid\Usage\Digitizer.cs" />
-    <Compile Include="Input\DeviceScanner.cs" />
-    <Compile Include="Input\DeviceType.cs" />
-    <Compile Include="Input\HidKeyboard.cs" />
-    <Compile Include="Input\HidMouse.cs" />
-    <Compile Include="Input\HidOtherDevice.cs" />
-    <Compile Include="Input\IInputDevice.cs" />
-    <Compile Include="Input\Internal\ExtensionMethods.cs" />
-    <Compile Include="Input\Internal\Win32_PnPEntity.cs" />
-    <Compile Include="Input\Internal\WinMM\JoyCaps.cs">
-      <ExcludeFromStyleCop>False</ExcludeFromStyleCop>
-    </Compile>
-    <Compile Include="Input\Internal\WinMM\JoyFlags.cs" />
-    <Compile Include="Input\Internal\WinMM\JoyInfo.cs" />
-    <Compile Include="Input\Internal\WinMM\JoyInfoEx.cs">
-      <ExcludeFromStyleCop>False</ExcludeFromStyleCop>
-    </Compile>
-    <Compile Include="Input\Internal\WinMM\MMResult.cs" />
-    <Compile Include="Input\Internal\WinMM\NativeMethods.cs" />
-    <Compile Include="Input\UsbGamepad.cs" />
-    <Compile Include="Input\VirtualKeyboard.cs" />
     <Compile Include="Hid\HidDataReader.cs" />
     <Compile Include="Hid\HidRepeatEventHandler.cs" />
     <Compile Include="Hid\HidEventHandler.cs" />

@@ -134,7 +134,7 @@ namespace Djlastnight.Hid
         /// Process a WM_INPUT message.
         /// </summary>
         /// <param name="message"></param>
-        public void ProcessInput(ref Message message)
+        public void ProcessInput(ref Message message, Device dev)
         {
             if (message.Msg != Contants.WM_INPUT)
             {
@@ -143,6 +143,12 @@ namespace Djlastnight.Hid
             }
 
             var hidEvent = new HidEvent(message);
+            if (dev != null)
+            {
+                if (hidEvent.Device != null && hidEvent.Device.Name != dev.Name) return;
+                if (hidEvent.IsMouse != dev.IsMouse || hidEvent.IsKeyboard != dev.IsKeyboard) return;
+            }
+
             hidEvent.DebugWrite();
 
             if (!hidEvent.IsValid)
