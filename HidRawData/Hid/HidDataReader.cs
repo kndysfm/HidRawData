@@ -19,7 +19,7 @@
         /// Creates new HID data reader.
         /// </summary>
         /// <param name="window">Window instance, which will reveice the WM_INPUT messages</param>
-        public HidDataReader(Window window)
+        public HidDataReader(Window window, IList<Device> devices)
         {
             if (window == null)
             {
@@ -31,8 +31,6 @@
             var handle = new WindowInteropHelper(this.window).Handle;
             var source = HwndSource.FromHwnd(handle);
             source.AddHook(this.WndProc);
-
-            var devices = RawInputHelper.GetDevices();
 
             int i = 0;
             RAWINPUTDEVICE[] rids = new RAWINPUTDEVICE[devices.Count];
@@ -50,6 +48,10 @@
             this.handler = new HidHandler(rids);
             this.handler.OnHidEvent += this.OnHidEvent;
         }
+
+        public HidDataReader(Window window) : this(window, RawInputHelper.GetDevices()) { }
+
+        public HidDataReader(Window window, Device d) : this(window, new Device[] { d }) { }
 
         /// <summary>
         /// Raised, when data from HID device is received
@@ -73,13 +75,14 @@
                 if (this.window != null)
                 {
                     var windowHandle = new WindowInteropHelper(this.window).Handle;
-                    var source = HwndSource.FromHwnd(windowHandle);
-                    source.RemoveHook(this.WndProc);
+                    if (windowHandle != IntPtr.Zero)
+                    {
+                        var source = HwndSource.FromHwnd(windowHandle);
+                        source.RemoveHook(this.WndProc);
+                    }
                 }
             }
         }
-
-        public Device Device { get; set; }
 
         private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wordParam, IntPtr longParam, ref bool handled)
         {
@@ -93,7 +96,7 @@
             message.Msg = msg;
             message.WParam = wordParam;
             message.LParam = longParam;
-            this.handler.ProcessInput(ref message, Device);
+            this.handler.ProcessInput(ref message);
 
             return IntPtr.Zero;
         }
