@@ -78,26 +78,39 @@ namespace Djlastnight.Hid
             return "";
         }
 
-        private static Tuple<int,string> getUnitNibble(uint system, uint nibble, uint value)
+        private static Tuple<double,string> getUnitNibble(uint system, uint nibble, uint value, bool friendly)
         {
             Debug.Assert(system <= 4);
             Debug.Assert(nibble <= 7);
 
             var e = getUnitExp(value);
-            if (e == 0) return new Tuple<int, string>(0, "");
+            if (e == 0) return new Tuple<double, string>(1.0, "");
 
             var u = "";
-            var adj = e;
+            var adj = 1.0; // convert into friendly units system
             
             switch (system)
             {
                 default:
                 case 0: break;
                 case 1: // SI linear
+                    if (friendly)
+                    {
+                        switch (nibble)
+                        {
+                            case 1: adj = Math.Pow(10, e); u = "mm"; break;
+                            case 2: u = "g"; break;
+                            case 3: adj = Math.Pow(1000, e); u = "ms"; break;
+                            case 4: u = "C"; break;
+                            case 5: u = "A"; break;
+                            case 6: u = "cd"; break;
+                        }
+                    }
+                    else
                     switch(nibble)
                     {
-                        case 1: adj *= -2; u = "m"; break;
-                        case 2: adj *= -3; u = "kg"; break;
+                        case 1: u = "cm"; break;
+                        case 2: u = "g"; break;
                         case 3: u = "s"; break;
                         case 4: u = "C"; break;
                         case 5: u = "A"; break;
@@ -105,9 +118,27 @@ namespace Djlastnight.Hid
                     }
                     break;
                 case 2: // SI roration
-                    if (nibble == 1) u = "radian"; 
+                    if (nibble == 1)
+                    {
+                        if (friendly)
+                        {
+                            adj = Math.Pow(180.0/Math.PI, e);
+                            u = "degrees";
+                        }
+                        else u = "radian"; 
+                    }
                     break;
                 case 3: // English linear
+                    if (friendly)
+                    {
+                        switch (nibble)
+                        {
+                            case 1: adj = Math.Pow(25.4, e); u = "mm"; break;
+                            case 2: adj = Math.Pow(14.5939, e); u = "g"; break;
+                            case 4: u = "F"; break; //TODO T[F] = 1.8*T[C] + 32 
+                        }
+                    }
+                    else
                     switch (nibble)
                     {
                         case 1: u = "in"; break;
@@ -120,19 +151,20 @@ namespace Djlastnight.Hid
                     break;
             }
 
-            return new Tuple<int, string>(adj, string.IsNullOrEmpty(u)? u: getUnitWithPower(u, e));
+            return new Tuple<double,string>(adj, string.IsNullOrEmpty(u)? u: getUnitWithPower(u, e));
         }
 
-        private static Tuple<float, string> getUnitTuple(uint unit, uint exp)
+        private static Tuple<float, string> getUnitTuple(uint unit, uint exp, bool friendly)
         {
             var s = "";
+            var u = 1.0;
             var e = getUnitExp(exp);
             var system = (unit >> 0) & 0xf;
             var order = new uint[] { 2, 1, 3, 4, 5, 6, 7 };
             foreach (var i in order)
             {
-                var n = getUnitNibble(system, i, (unit >> (int)(i * 4)) & 0xf);
-                e += n.Item1;
+                var n = getUnitNibble(system, i, (unit >> (int)(i * 4)) & 0xf, friendly);
+                u *= n.Item1;
                 s += n.Item2;
             }
             if (!string.IsNullOrEmpty(s))
@@ -140,20 +172,20 @@ namespace Djlastnight.Hid
                 if (s[0] == '/') s = "1" + s;
                 else if (s[0] == ' ') s = s.Substring(1); 
             }
-            return new Tuple<float, string>((float)Math.Pow(10, e), s);
+            return new Tuple<float, string>((float)(u * Math.Pow(10, e)), s);
         }
 
         public static bool HasUnit(this HIDP_VALUE_CAPS caps) => caps.Units != 0;
 
-        public static string GetUnit(this HIDP_VALUE_CAPS caps)
+        public static string GetUnit(this HIDP_VALUE_CAPS caps, bool friendly = true)
         {
-            return getUnitTuple(caps.Units, caps.UnitsExp).Item2;
+            return getUnitTuple(caps.Units, caps.UnitsExp, friendly).Item2;
         }
 
-        public static float ConvertUnit(this HIDP_VALUE_CAPS caps, uint value_logical)
+        public static float ConvertUnit(this HIDP_VALUE_CAPS caps, uint value_logical, bool friendly = true)
         {
-            var t = getUnitTuple(caps.Units, caps.UnitsExp);
-            return t.Item1 * (caps.PhysicalMin + (caps.PhysicalMax - caps.PhysicalMin) * ((float)value_logical - caps.LogicalMin) / (caps.LogicalMax - caps.LogicalMin));
+            var t = getUnitTuple(caps.Units, caps.UnitsExp, friendly);
+            return t.Item1 * ((float)caps.PhysicalMin + (caps.PhysicalMax - caps.PhysicalMin) * (value_logical - caps.LogicalMin) / (caps.LogicalMax - caps.LogicalMin));
         }
     }
 }
