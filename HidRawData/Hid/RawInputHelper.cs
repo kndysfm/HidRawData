@@ -5,7 +5,6 @@ namespace Djlastnight.Hid
     using System.Diagnostics;
     using System.Linq;
     using System.Runtime.InteropServices;
-    using System.Windows.Forms;
     using Djlastnight.Win32;
     using Djlastnight.Win32.Win32Hid;
     using Djlastnight.Win32.Win32RawInput;
@@ -152,96 +151,6 @@ namespace Djlastnight.Hid
             finally
             {
                 Marshal.FreeHGlobal(deviceName);
-            }
-        }
-
-        /// <summary>
-        /// Populate the given tree-view control with our Raw Input Devices.
-        /// </summary>
-        /// <param name="treeView"></param>
-        public static void __PopulateDeviceList(TreeView treeView)
-        {
-            // Get our list of devices
-            RAWINPUTDEVICELIST[] ridList = null;
-            uint deviceCount = 0;
-            int res = Win32.Win32RawInput.NativeMethods.GetRawInputDeviceList(ridList, ref deviceCount, (uint)Marshal.SizeOf(typeof(RAWINPUTDEVICELIST)));
-            if (res == -1)
-            {
-                // Just give up then
-                return;
-            }
-
-            ridList = new RAWINPUTDEVICELIST[deviceCount];
-            res = Win32.Win32RawInput.NativeMethods.GetRawInputDeviceList(ridList, ref deviceCount, (uint)Marshal.SizeOf(typeof(RAWINPUTDEVICELIST)));
-            if (res != deviceCount)
-            {
-                // Just give up then
-                return;
-            }
-
-            // For each our device add a node to our treeview
-            foreach (RAWINPUTDEVICELIST device in ridList)
-            {
-                Device hidDevice;
-
-                // Try create our HID device.
-                try
-                {
-                    hidDevice = new Device(device.hDevice);
-                }
-                catch
-                {
-                    continue;
-                }
-
-                TreeNode node = null;
-                if (hidDevice.Product != null && hidDevice.Product.Length > 1)
-                {
-                    // Add the devices with a proper name at the top
-                    node = treeView.Nodes.Insert(0, hidDevice.Name, hidDevice.FriendlyName);
-                }
-                else
-                {
-                    // Add other once at the bottom
-                    node = treeView.Nodes.Add(hidDevice.Name, hidDevice.FriendlyName);
-                }
-
-                // Each device root node keeps a reference to our HID device
-                node.Tag = hidDevice;
-
-                // Populate device properties
-                node.Nodes.Add("Manufacturer: " + hidDevice.Manufacturer);
-                node.Nodes.Add("Product ID: 0x" + hidDevice.ProductId.ToString("X4"));
-                node.Nodes.Add("Vendor ID: 0x" + hidDevice.VendorId.ToString("X4"));
-                node.Nodes.Add("Version: " + hidDevice.Version);
-                node.Nodes.Add(hidDevice.Info.dwType.ToString());
-                if (hidDevice.Info.dwType == RawInputDeviceType.RIM_TYPEHID)
-                {
-                    node.Nodes.Add("UsagePage / UsageCollection: 0x" + hidDevice.Info.hid.usUsagePage.ToString("X4") + " / 0x" + hidDevice.Info.hid.usUsage.ToString("X4"));
-                }
-
-                if (hidDevice.InputCapabilitiesDescription != null)
-                {
-                    node.Nodes.Add(hidDevice.InputCapabilitiesDescription);
-                }
-
-                // Add button count
-                node.Nodes.Add("Button Count: " + hidDevice.ButtonCount);
-
-                // Those can be joystick/gamepad axis
-                if (hidDevice.InputValueCapabilities != null)
-                {
-                    foreach (HIDP_VALUE_CAPS caps in hidDevice.InputValueCapabilities)
-                    {
-                        string des = Djlastnight.Hid.Device.InputValueCapabilityDescription(caps);
-                        if (des != null)
-                        {
-                            node.Nodes.Add(des);
-                        }
-                    }
-                }
-
-                node.Nodes.Add(hidDevice.Name);
             }
         }
 
