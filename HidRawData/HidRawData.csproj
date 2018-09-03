@@ -48,6 +48,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Hid\HidCapsUtils.cs" />
     <Compile Include="Hid\UsageCollection\Digitizer.cs" />
     <Compile Include="Hid\Usage\Digitizer.cs" />
     <Compile Include="Input\DeviceScanner.cs" />
